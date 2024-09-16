@@ -16,25 +16,18 @@ const Navigation = ({ user }) => {
     const [open, setOpen] = useState(false)
 
     return (
-        <nav className="bg-white border-b border-gray-100">
+        <nav className="lg:w-[calc(100vw-350px)] lg:fixed lg:mt-4 lg:ml-80 bg-gray-300 shadow-md rounded-md z-50">
             {/* Primary Navigation Menu */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
+            <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-4 py-2">
+                <div className="flex justify-between h-12">
                     <div className="flex">
-                        {/* Logo */}
-                        <div className="flex-shrink-0 flex items-center">
-                            <Link href="/dashboard">
-                                <ApplicationLogo className="block h-10 w-auto fill-current text-gray-600" />
+                        <div className="hidden sm:-my-px sm:flex">
+                            <Link
+                                href="/Dashboard"
+                                active={usePathname() === '/dashboard'}
+                                className="inline-flex items-center pt-1 text-lg font-medium leading-5 focus:outline-none transition duration-150 ease-in-out capitalize font-bold">
+                                { usePathname().replace(/^\/+/g, '') }
                             </Link>
-                        </div>
-
-                        {/* Navigation Links */}
-                        <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                            <NavLink
-                                href="/dashboard"
-                                active={usePathname() === '/dashboard'}>
-                                Dashboard
-                            </NavLink>
                         </div>
                     </div>
 

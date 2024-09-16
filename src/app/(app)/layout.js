@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/auth'
 import Navigation from '@/app/(app)/Navigation'
 import Loading from '@/app/(app)/Loading'
+import Sidebar from './Sidebar'
 
 const AppLayout = ({ children }) => {
     const { user } = useAuth({ middleware: 'auth' })
@@ -13,9 +14,19 @@ const AppLayout = ({ children }) => {
 
     return (
         <div className="min-h-screen bg-gray-100">
+            <Sidebar />
+
             <Navigation user={user} />
 
-            <main>{children}</main>
+            <main className="lg:w-[calc(100vw-285px)] lg:py-24">
+                <div className="w-full lg:ml-72 max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="p-4 text-gray-900">
+                            {children}
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     )
 }
