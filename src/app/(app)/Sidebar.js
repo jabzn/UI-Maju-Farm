@@ -18,10 +18,10 @@ const Sidebar = () => {
     ];
 
     return (
-        <aside className="hidden lg:block fixed ml-4 mt-4 bg-gray-300 h-[calc(100vh-32px)] w-72 py-6 rounded-lg shadow-lg">
+        <aside className="hidden lg:block fixed ml-4 mt-4 bg-gray-200 h-[calc(100vh-32px)] w-72 py-6 rounded-lg shadow-lg">
             <Link href="/dashboard">
-                <h6 class="text-center block antialiased tracking-normal font-sans text-xl font-extrabold leading-relaxed text-blue-gray-900">
-                    CPEI TSDev
+                <h6 className="text-center block antialiased tracking-normal font-sans text-xl font-extrabold leading-relaxed text-blue-gray-900">
+                    Maju Farm
                 </h6>
             </Link>
 

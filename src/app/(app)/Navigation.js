@@ -16,7 +16,7 @@ const Navigation = ({ user }) => {
     const [open, setOpen] = useState(false)
 
     return (
-        <nav className="lg:w-[calc(100vw-350px)] lg:fixed lg:mt-4 lg:ml-80 bg-gray-300 shadow-md rounded-md z-50">
+        <nav className="lg:w-[calc(100vw-350px)] lg:fixed lg:mt-4 lg:ml-80 bg-gray-200 shadow-md rounded-md z-50">
             {/* Primary Navigation Menu */}
             <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-4 py-2">
                 <div className="flex justify-between h-12">
