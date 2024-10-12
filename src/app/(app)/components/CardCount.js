@@ -4,7 +4,7 @@ const Card = ({title, value}) => {
             <h3 className="font-bold">
                 {title}
             </h3>
-            <div className="text-3xl font-bold">
+            <div className="text-lg font-bold">
                 {value}
             </div>
         </div>

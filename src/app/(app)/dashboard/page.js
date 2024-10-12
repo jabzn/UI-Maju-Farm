@@ -1,5 +1,5 @@
 import Header from '@/app/(app)/Header'
-import Card from '@/app/(app)/components/Card'
+import CardCount from '@/app/(app)/components/CardCount'
 import ChartLine from '@/app/(app)/components/ChartLine'
 import CardStock from '../components/CardStock'
 
@@ -12,15 +12,15 @@ const Dashboard = () => {
         <>
             {/* This is card for the Dashboard */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <Card 
+                <CardCount 
                     title={'Total Telur di Gudang'}
                     value={10.543}
                 />
-                <Card 
+                <CardCount 
                     title={'Total Telur di Endekado'}
                     value={8.768}
                 />
-                <Card 
+                <CardCount 
                     title={'Items'}
                     value={10}
                 />
