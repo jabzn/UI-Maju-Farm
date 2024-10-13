@@ -20,7 +20,7 @@ const AppLayout = ({ children }) => {
 
             <main className="lg:w-[calc(100vw-305px)] lg:pt-4">
                 <div className="w-full lg:ml-72 max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg h-[calc(100vh-32px)]">
                         <div className="p-4 text-gray-900">
                             {children}
                         </div>

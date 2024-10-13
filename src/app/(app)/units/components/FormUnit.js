@@ -3,7 +3,7 @@
 import axios from "@/lib/axios";
 import { useState } from "react";
 
-const Form = ({ onSubmit, updateName, categoryId, mode, buttonText }) => {
+const FormUnit = ({ onSubmit, updateName, unitId, mode, buttonText }) => {
     const [name, setName] = useState(updateName);
     const [errors, setErrors] = useState({});
     const [progress, setProgress] = useState(false);
@@ -15,10 +15,10 @@ const Form = ({ onSubmit, updateName, categoryId, mode, buttonText }) => {
         try {
             setProgress(true);
             const request = mode === 'create'
-                ? axios.post('/api/category', { name }) 
+                ? axios.post('/api/unit', { name }) 
                 : mode === 'update'
-                    ? axios.put(`/api/category/${categoryId}`, { name })
-                    : axios.delete(`/api/category/${categoryId}`);
+                    ? axios.put(`/api/unit/${unitId}`, { name })
+                    : axios.delete(`/api/unit/${unitId}`);
             const response = await request;
             onSubmit();
         } catch (error) {
@@ -42,7 +42,7 @@ const Form = ({ onSubmit, updateName, categoryId, mode, buttonText }) => {
                             id="name"
                             value={name}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-inner focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Nama Kategori"
+                            placeholder="Nama Unit"
                             autoComplete="off"
                             disabled={progress}
                             onChange={(e) => setName(e.target.value)}
@@ -52,7 +52,7 @@ const Form = ({ onSubmit, updateName, categoryId, mode, buttonText }) => {
                 )}
                 {mode === 'delete' && (
                     <div className="text-red-500">
-                        <p>Anda yakin ingin menghapus kategori <strong>{name}</strong>?</p>
+                        <p>Anda yakin ingin menghapus unit "<strong>{name}</strong>"?</p>
                     </div>
                 )}
                 <div className="flex justify-end space-x-3">
@@ -69,4 +69,4 @@ const Form = ({ onSubmit, updateName, categoryId, mode, buttonText }) => {
     )
 }
 
-export default Form;
+export default FormUnit;

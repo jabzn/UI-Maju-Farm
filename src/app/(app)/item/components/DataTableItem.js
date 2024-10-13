@@ -72,7 +72,7 @@ const ItemsTable = () => {
                 customStyles={customStyles}
                 progressPending={loading}
                 pagination
-                paginationPerPage={12}
+                paginationPerPage={15}
                 paginationRowsPerPageOptions={[10, 25, 50, 100]}
             />
         </>

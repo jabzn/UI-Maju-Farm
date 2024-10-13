@@ -1,31 +1,45 @@
 'use client'
 
 import DataTable from "react-data-table-component";
-import CustomStylesCategories from "./CustomStylesCategories";
-import Form from "./FormCategory";
-import { Dialog, Transition } from "@headlessui/react";
-import { useState, useEffect, Fragment } from "react";
-import axios from "@/lib/axios";
+import CustomStylesUnits from "./CustomStylesUnits";
 import CreateButton from "@/components/CreateButton";
+import { useEffect, useState, Fragment } from "react";
+import axios from "@/lib/axios";
+import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import FormUnit from "./FormUnit";
 
-const DataTableCategory = () => {
-    const [loading, setLoading] = useState(true);
+const DataTableUnit = () => {
     const [data, setData] = useState([]);
-    const [category, setCategory] = useState('');
-    const [categoryId, setCategoryId] = useState(0);
+    const [loading, setLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
-    const [mode, setMode] = useState('')
-    const [title, setTitle] = useState(false);
-
-    const closeModal = () => {
-        setIsOpen(false);
-        setCategory('');
-    }
+    const [mode, setMode] = useState('');
+    const [unitId, setUnitId] = useState(0);
+    const [unit, setUnit] = useState('');
+    const [title, setTitle] = useState('');
 
     const openModal = () => {
         setIsOpen(true);
         setMode('create');
+    }
+
+    const handleUpdateUnit = (unit) => {
+        setMode('update');
+        setIsOpen(true);
+        setUnit(unit.name);
+        setUnitId(unit.id);
+    }
+
+    const handleDeleteUnit = (unit) => {
+        setMode('delete');
+        setIsOpen(true);
+        setUnit(unit.name);
+        setUnitId(unit.id);
+    }
+
+    const closeModal = () => {
+        setIsOpen(false);
+        setUnit('');
     }
 
     const handleAfterSubmit = () => {
@@ -33,23 +47,9 @@ const DataTableCategory = () => {
         closeModal();
     }
 
-    const handleUpdateCategory = (category) => {
-        setMode('update');
-        setIsOpen(true);
-        setCategory(category.name);
-        setCategoryId(category.id);
-    }
-
-    const handleDeleteCategory = (category) => {
-        setMode('delete');
-        setCategory(category.name);
-        setCategoryId(category.id);
-        setIsOpen(true);
-    }
-
     const fetchData = async () => {
         try {
-            const response = await axios.get('/api/categories');
+            const response = await axios.get('/api/units');
             setData(response.data);
         } catch (error) {
             console.log('error fetching data', error);
@@ -69,14 +69,14 @@ const DataTableCategory = () => {
             setTitle('Hapus');
         }
     }, [mode]);
-
+    
     const columns = [
         {
-            name: 'No',
+            name: 'No.',
             selector: (row, index) => index + 1,
         },
         {
-            name: 'Nama Kategory',
+            name: 'Nama Unit',
             selector: row => row.name,
         },
         {
@@ -85,27 +85,27 @@ const DataTableCategory = () => {
                 <div className="flex gap-2">
                     <button 
                         className="bg-blue-500 text-white font-bold p-1 rounded-sm shadow-inner" 
-                        onClick={() => handleUpdateCategory(row)}
+                        onClick={() => handleUpdateUnit(row)}
                     >
                         Update
                     </button>
                     <button 
                         className="bg-red-500 text-white font-bold p-1 rounded-sm shadow-inner"
-                        onClick={() => handleDeleteCategory(row)}
+                        onClick={() => handleDeleteUnit(row)}
                     >
                         Hapus
                     </button>
                 </div>
             ),
-        },
+        }
     ];
 
     return (
         <div>
             <CreateButton onClick={openModal}>
-                Tambah Kategori
+                Tambah Satuan
             </CreateButton>
-
+            
             <Transition appear show={isOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeModal}>
                     <Transition.Child
@@ -143,10 +143,10 @@ const DataTableCategory = () => {
                                     </Dialog.Title>
 
                                     <div className="mt-4">
-                                        <Form 
+                                        <FormUnit
                                             onSubmit={handleAfterSubmit}
-                                            categoryId={categoryId}
-                                            updateName={category}
+                                            updateName={unit}
+                                            unitId={unitId}
                                             mode={mode}
                                             buttonText={title}
                                         />
@@ -157,17 +157,16 @@ const DataTableCategory = () => {
                     </div>
                 </Dialog>
             </Transition>
-
+            
             <DataTable
                 columns={columns}
                 data={data}
-                customStyles={CustomStylesCategories}
+                customStyles={CustomStylesUnits}
+                pagination={10}
                 progressPending={loading}
-                pagination
-                paginationPerPage={10}
             />
         </div>
     )
 }
 
-export default DataTableCategory;
+export default DataTableUnit;

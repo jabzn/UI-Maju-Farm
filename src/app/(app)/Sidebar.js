@@ -23,7 +23,11 @@ const Sidebar = () => {
     const listSubRoutes = [
         {
             'route_link': '/category',
-            'route_name': 'Category',
+            'route_name': 'Kategori',
+        },
+        {
+            'route_link': '/units',
+            'route_name': 'Unit Satuan Barang',
         },
         {
             'route_link': '/item',
