@@ -1,23 +1,13 @@
-import ItemsTable from "./components/DataTableItem";
-import FormItem from "./components/FormItem";
-import CreateItemModal from "./components/Modal";
-
 export const metadata = {
-    title: 'Maju Farm - Items',
+    title: 'Item',
 }
 
-const Items = () => {
+const Item = () => {
     return (
-        <div>
-            <CreateItemModal 
-                title={'Tambah Item'}
-                header={'Tambah Item'}
-                content={<FormItem />}
-            />
-            
-            <ItemsTable />
+        <div className="space-y-4">
+            Data Table for Item
         </div>
     )
 }
 
-export default Items;
+export default Item;

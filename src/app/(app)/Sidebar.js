@@ -30,6 +30,10 @@ const Sidebar = () => {
             'route_name': 'Unit Satuan Barang',
         },
         {
+            'route_link': '/suppliers',
+            'route_name': 'Supplier',
+        },
+        {
             'route_link': '/item',
             'route_name': 'Item',
         },

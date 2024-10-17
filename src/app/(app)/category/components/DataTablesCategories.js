@@ -2,52 +2,25 @@
 
 import DataTable from "react-data-table-component";
 import CustomStylesCategories from "./CustomStylesCategories";
-import Form from "./FormCategory";
+import FormCategory from "./FormCategory";
 import { Dialog, Transition } from "@headlessui/react";
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment, useCallback, useMemo } from "react";
 import axios from "@/lib/axios";
 import CreateButton from "@/components/CreateButton";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 
 const DataTableCategory = () => {
-    const [loading, setLoading] = useState(true);
+    const initialCategory = {
+        name: '',
+    }
+
     const [data, setData] = useState([]);
-    const [category, setCategory] = useState('');
-    const [categoryId, setCategoryId] = useState(0);
+    const [loading, setLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
     const [mode, setMode] = useState('')
-    const [title, setTitle] = useState(false);
+    const [category, setCategory] = useState('');
 
-    const closeModal = () => {
-        setIsOpen(false);
-        setCategory('');
-    }
-
-    const openModal = () => {
-        setIsOpen(true);
-        setMode('create');
-    }
-
-    const handleAfterSubmit = () => {
-        fetchData();
-        closeModal();
-    }
-
-    const handleUpdateCategory = (category) => {
-        setMode('update');
-        setIsOpen(true);
-        setCategory(category.name);
-        setCategoryId(category.id);
-    }
-
-    const handleDeleteCategory = (category) => {
-        setMode('delete');
-        setCategory(category.name);
-        setCategoryId(category.id);
-        setIsOpen(true);
-    }
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             const response = await axios.get('/api/categories');
             setData(response.data);
@@ -56,21 +29,28 @@ const DataTableCategory = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, []);
 
     useEffect(() => {
         fetchData();
+    }, [fetchData]);
 
-        if (mode === 'create') {
-            setTitle('Tambah');
-        } else if (mode === 'update') {
-            setTitle('Edit');
-        } else if (mode === 'delete') {
-            setTitle('Hapus');
-        }
-    }, [mode]);
+    const openModal = (type = 'create', category = initialCategory) => {
+        setMode(type);
+        setCategory(category);
+        setIsOpen(true);
+    }
 
-    const columns = [
+    const closeModal = () => {
+        setIsOpen(false);
+    }
+
+    const handleAfterSubmit = () => {
+        fetchData();
+        closeModal();
+    }
+
+    const columns = useMemo(() => [
         {
             name: 'No',
             selector: (row, index) => index + 1,
@@ -85,24 +65,24 @@ const DataTableCategory = () => {
                 <div className="flex gap-2">
                     <button 
                         className="bg-blue-500 text-white font-bold p-1 rounded-sm shadow-inner" 
-                        onClick={() => handleUpdateCategory(row)}
+                        onClick={() => openModal('update', row)}
                     >
                         Update
                     </button>
                     <button 
                         className="bg-red-500 text-white font-bold p-1 rounded-sm shadow-inner"
-                        onClick={() => handleDeleteCategory(row)}
+                        onClick={() => openModal('delete', row)}
                     >
                         Hapus
                     </button>
                 </div>
             ),
         },
-    ];
+    ]);
 
     return (
         <div>
-            <CreateButton onClick={openModal}>
+            <CreateButton onClick={() => openModal()}>
                 Tambah Kategori
             </CreateButton>
 
@@ -136,19 +116,20 @@ const DataTableCategory = () => {
                                         as="h3"
                                         className="text-lg font-bold leading-6 text-gray-900 flex justify-between border-b border-b-2 pb-2"
                                     >
-                                        <span>{ title }</span>
+                                        <span>
+                                            {mode === 'create' ? 'Tambah Kategori' : mode === 'update' ? 'Update Kategori' : 'Hapus Kategori'}
+                                        </span>
                                         <button className="hover:text-red-800">
                                             <XMarkIcon className="w-5" onClick={closeModal} />
                                         </button>
                                     </Dialog.Title>
 
                                     <div className="mt-4">
-                                        <Form 
+                                        <FormCategory 
                                             onSubmit={handleAfterSubmit}
-                                            categoryId={categoryId}
-                                            updateName={category}
                                             mode={mode}
-                                            buttonText={title}
+                                            data={category}
+                                            buttonText={mode === 'create' ? 'Simpan' : mode === 'update' ? 'Update' : 'Hapus'}
                                         />
                                     </div>
                                 </Dialog.Panel>
