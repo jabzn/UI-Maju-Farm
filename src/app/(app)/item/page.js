@@ -1,3 +1,5 @@
+import DataTableItem from "./components/DataTableItems";
+
 export const metadata = {
     title: 'Item',
 }
@@ -5,7 +7,7 @@ export const metadata = {
 const Item = () => {
     return (
         <div className="space-y-4">
-            Data Table for Item
+            <DataTableItem />
         </div>
     )
 }
