@@ -98,7 +98,11 @@ const DataTableItem = () => {
         },
         {
             name: 'Nama Item',
-            cell: row => <Link href={`/item/${row.id}`}>{row.name}</Link>,
+            cell: row => (
+                <Link href={`/item/${row.id}`}>
+                    <span className="hover:text-blue-500">{row.name}</span>
+                </Link>
+            ),
             sortable: true,
         },
         {

@@ -1,24 +1,14 @@
-'use client'
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useState } from "react";
+import { DeleteConfirmation, InputField, SelectField, SubmitButton } from "./FieldForm";
 import axios from "@/lib/axios";
-import { 
-    DeleteConfirmation, 
-    InputField, 
-    SelectField, 
-    SubmitButton, 
-    TextArea 
-} from "./FieldForm";
 
-const FormItem = ({ onSubmit, data, dataCategories, dataUnits, mode, buttonText }) => {
+const FormItemId = ({ onSubmit, data, dataUnits, mode, buttonText }) => {
     const [formData, setFormData] = useState(data);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        setFormData(data);
-    }, [data]);
-    
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -36,7 +26,7 @@ const FormItem = ({ onSubmit, data, dataCategories, dataUnits, mode, buttonText 
 
     const isFormValid = useCallback(() => {
         if (mode === 'delete') return true;
-        return formData.name && formData.code && formData.category_id && formData.unit_id;
+        return formData.unit_id && formData.quantity;
     }, [formData, mode]);
 
     const handleSubmit = async (e) => {
@@ -45,13 +35,13 @@ const FormItem = ({ onSubmit, data, dataCategories, dataUnits, mode, buttonText 
         setIsLoading(true);
 
         try {
-            const endpoint = '/api/item' + (mode !== 'create' ? `/${data.id}` : '');
+            const endpoint = '/api/item/' + data.item_id + '/conversion' + (mode !== 'create' ? `/${data.id}` : '');
             const method = {
                 'create': 'post',
                 'update': 'put',
                 'delete': 'delete'
             }[mode];
-
+            
             await axios[method](endpoint, formData);
             onSubmit();
         } catch (error) {
@@ -60,7 +50,7 @@ const FormItem = ({ onSubmit, data, dataCategories, dataUnits, mode, buttonText 
             if (error.response?.status === 422) {
                 setErrors(responseData.errors);
             } else {
-                console.error(`Error ${mode}ing item:`, responseData?.message || error.message);
+                console.error(`Error ${mode}ing uom:`, responseData?.message || error.message);
                 setErrors({ 
                     general: 'An error occurred while processing your request.'
                 });
@@ -72,44 +62,11 @@ const FormItem = ({ onSubmit, data, dataCategories, dataUnits, mode, buttonText 
 
     const renderForm = () => {
         if (mode === 'delete') {
-            return <DeleteConfirmation itemName={formData.name} />;
+            return <DeleteConfirmation />;;
         }
 
         return (
             <div className="w-full space-y-4">
-                <InputField
-                    label="Kode Item"
-                    name="code"
-                    value={formData.code}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    error={errors.code?.[0]}
-                    required
-                    placeholder="Kode Item"
-                />
-
-                <InputField
-                    label="Nama Item"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    error={errors.name?.[0]}
-                    required
-                    placeholder="Nama Item"
-                />
-
-                <SelectField
-                    label="Kategori Item"
-                    name="category_id"
-                    value={formData.category_id}
-                    options={dataCategories}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    placeholder="Pilih Kategori"
-                    error={errors.category_id?.[0]}
-                />
-
                 <SelectField
                     label="UOM"
                     name="unit_id"
@@ -120,29 +77,20 @@ const FormItem = ({ onSubmit, data, dataCategories, dataUnits, mode, buttonText 
                     placeholder="Pilih Unit"
                     error={errors.unit_id?.[0]}
                 />
-
+                
                 <InputField
-                    label="Harga"
-                    name="price"
-                    type="number"
-                    value={formData.price}
+                    label="Quantity Conversion"
+                    name="quantity"
+                    value={formData.quantity}
                     onChange={handleChange}
                     disabled={isLoading}
-                    error={errors.price?.[0]}
-                    placeholder="Harga Item"
-                />
-
-                <TextArea
-                    label="Keterangan"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    error={errors.description?.[0]}
+                    error={errors.quantity?.[0]}
+                    required
+                    placeholder="Kuantitas Konversi"
                 />
             </div>
         );
-    };
+    }
 
     return (
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -163,7 +111,7 @@ const FormItem = ({ onSubmit, data, dataCategories, dataUnits, mode, buttonText 
                 />
             </div>
         </form>
-    );
-};
+    )
+}
 
-export default FormItem;
+export default FormItemId;
