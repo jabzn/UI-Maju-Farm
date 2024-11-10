@@ -9,10 +9,6 @@ const FormUnit = ({ onSubmit, data, mode, buttonText }) => {
     const [progress, setProgress] = useState(false);
     const isFormValid = unit;
 
-    useEffect(() => {
-        setUnit(data)
-    }, [data]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});

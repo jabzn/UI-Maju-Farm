@@ -1,17 +1,13 @@
 'use client'
 
 import axios from "@/lib/axios";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { DeleteConfirmation, InputField, SubmitButton, TextArea } from "./FieldForm";
 
 const FormSupplier = ({ onSubmit, data, mode, buttonText }) => {
     const [formData, setFormData] = useState(data);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        setFormData(data);
-    }, [data]);
     
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;

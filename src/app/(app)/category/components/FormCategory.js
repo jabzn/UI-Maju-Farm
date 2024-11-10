@@ -9,10 +9,6 @@ const FormCategory = ({ onSubmit, data, mode, buttonText }) => {
     const [progress, setProgress] = useState(false);
     const isFormValid = category;
 
-    useEffect(() => {
-        setCategory(data);
-    }, [data]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});

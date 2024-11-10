@@ -2,7 +2,6 @@ import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 const Sidebar = () => {
     const listRoutes = [
@@ -11,16 +10,16 @@ const Sidebar = () => {
             'route_name': 'Dashboard',
         },
         {
-            'route_link': '/gudang',
-            'route_name': 'Gudang', 
-        },
-        {
-            'route_link': '/users',
-            'route_name': 'Users',
+            'route_link': '/stock',
+            'route_name': 'Stock',
         },
     ];
 
     const listSubRoutes = [
+        {
+            'route_link': '/store',
+            'route_name': 'Store',
+        },
         {
             'route_link': '/category',
             'route_name': 'Kategori',
