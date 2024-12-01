@@ -96,7 +96,7 @@ const FormSupplier = ({ onSubmit, data, mode, buttonText }) => {
                         onChange={handleChange}
                         disabled={isLoading}
                         error={errors.contact_person?.[0]}
-                        placeholder="Alamat Suplier"
+                        placeholder="Contact Person"
                     />
     
                     <InputField

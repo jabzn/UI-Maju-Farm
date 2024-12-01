@@ -86,16 +86,6 @@ const FormStore = ({ onSubmit, data, mode, buttonText }) => {
                     required
                     placeholder="Tipe Store"
                 />
-
-                <TextArea
-                    label="Keterangan"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    error={errors.description?.[0]}
-                    placeholder="Keterangan"
-                />
             </div>
         )
     }

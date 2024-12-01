@@ -9,9 +9,16 @@ const Sidebar = () => {
             'route_link': '/dashboard',
             'route_name': 'Dashboard',
         },
+    ];
+
+    const listSubStockRoutes = [
         {
             'route_link': '/stock',
-            'route_name': 'Stock',
+            'route_name': 'Stock Receipt',
+        },
+        {
+            'route_link': '/store-stock',
+            'route_name': 'Store Stock',
         },
     ];
 
@@ -61,6 +68,32 @@ const Sidebar = () => {
                             </Link>
                         </li>
                     ))}
+                    <li>
+                            <Disclosure>
+                                {({ open }) => (
+                                    <>
+                                        <Disclosure.Button className="align-middle select-none font-sans font-bold text-center transition-all text-lg py-3 rounded-lg hover:bg-gray-400 active:bg-gray-500/30 w-full flex items-center gap-4 px-4 capitalize justify-between">
+                                            <span>Stock</span>
+                                            <ChevronUpIcon className={`${open ? 'rotate-180 transform duration-100' : ''} h-5 w-5`} />
+                                        </Disclosure.Button>
+                                        <Disclosure.Panel>
+                                            <ul className="bg-blue-200 rounded-lg">
+                                                {listSubStockRoutes.map(route => (
+                                                    <Link href={route.route_link} key={route.route_link}>
+                                                        <li className={`align-middle select-none font-sans font-bold text-center transition-all text-md py-2 rounded-lg hover:bg-gray-400 active:bg-gray-500/30 w-full flex items-center gap-4 px-4 capitalize
+                                                            ${
+                                                                usePathname() === route.route_link
+                                                                && 'bg-gradient-to-tr from-gray-900 to-gray-800 text-white shadow-md shadow-gray-900/10 hover:shadow-lg'
+                                                            }
+                                                        `}>{route.route_name}</li>
+                                                    </Link>    
+                                                ))}
+                                            </ul>
+                                        </Disclosure.Panel>
+                                    </>
+                                )}
+                            </Disclosure>
+                        </li>
                         <li>
                             <Disclosure>
                                 {({ open }) => (

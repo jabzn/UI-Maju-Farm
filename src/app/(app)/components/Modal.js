@@ -2,7 +2,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Fragment } from "react";
 
-const Modal = ({ isOpen, onClose, title, width = 'max-w-md', children }) => (
+const Modal = ({ isOpen, onClose, title, width = 'max-w-md', children, height = 'max-h-fit' }) => (
     <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" onClose={onClose} className="relative z-10">
         <Transition.Child
@@ -27,7 +27,7 @@ const Modal = ({ isOpen, onClose, title, width = 'max-w-md', children }) => (
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <Dialog.Panel className={`w-full ${width} transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`}>
+                        <Dialog.Panel className={`w-full ${width} ${height} transform overflow-hidden rounded-md bg-white p-6 text-left align-middle shadow-xl transition-all`}>
                             <Dialog.Title className="text-lg font-bold leading-6 text-gray-900 flex justify-between border-b-2 pb-2">
                                 <span>{title}</span>
                                 <button className="hover:text-red-800" onClick={onClose}>

@@ -134,7 +134,7 @@ const DataTableSupplier = () => {
                 isOpen={modalState.isOpen}
                 onClose={handleModalClose}
                 title={getModalTitle(modalState.mode)}
-                width="max-w-4xl"
+                width="max-w-3xl"
             >
                 <FormSupplier 
                     onSubmit={handleAfterSubmit}

@@ -12,7 +12,6 @@ import FormStore from "./FormStore";
 const INITIAL_STORE_STATE = {
     name: '',
     type: '',
-    description: '',
 }
 const DataTableStore = () => {
     const [data, setData] = useState([]);
@@ -67,13 +66,6 @@ const DataTableStore = () => {
         {
             name: 'Type',
             selector: row => row.type,
-        },
-        {
-            name: 'Keterangan',
-            selector: row => row.description,
-            cell: row => row.description?.length > 10
-                ? `${row.description.slice(0, 10)}...`
-                : row.description,
         },
         {
             name: 'Actions',
