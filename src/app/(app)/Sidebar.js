@@ -17,6 +17,10 @@ const Sidebar = () => {
             'route_name': 'Stock Receipt',
         },
         {
+            'route_link': '/store-requisition',
+            'route_name': 'Store Requisition',
+        },
+        {
             'route_link': '/store-stock',
             'route_name': 'Store Stock',
         },

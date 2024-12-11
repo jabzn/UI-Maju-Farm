@@ -27,9 +27,11 @@ const DatatableStock = () => {
     const [perPage, setPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [search, setSearch] = useState('');
-    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [startDate, setStartDate] = useState(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 2).toISOString().split('T')[0]
+    );
     const [endDate, setEndDate] = useState(
-        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0]
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split('T')[0]
     );
     const [modalState, setModalState] = useState({ 
         isOpen: false,
@@ -136,7 +138,7 @@ const DatatableStock = () => {
 
     return (
         <>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-2">
                 <CreateButton onClick={() => handleModalOpen('create')}>
                     Tambah Transaksi
                 </CreateButton>

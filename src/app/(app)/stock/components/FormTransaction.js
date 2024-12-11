@@ -41,14 +41,6 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         }
     }, [errors]);
 
-    const handleItemChange = useCallback((e) => {
-        const { name, value } = e.target;
-        setStockMovement(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    })
-
     const handleSelectedItem = useCallback((e) => {
         const selectedItem = e.target.value;
         const item = dataItems.find(item => item.id === parseInt(selectedItem));
@@ -157,6 +149,7 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
                 stock_movements: stockMovements.map(movement => ({
                     store_id: 1,
                     item_id: movement.item.id,
+                    date: formData.date,
                     quantity: movement.quantity,
                     total_quantity: movement.total_quantity,
                     price: movement.price,
@@ -164,6 +157,7 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
                     type: 'in',
                 }))
             }
+            console.log('Submit Data:', JSON.stringify(submitData, null, 2));
 
             const endpoint = '/api/stockTransaction' + (mode !== 'create' ? `/${formData.id}` : '');
             const method = {
@@ -202,7 +196,7 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         },
         {
             name: 'Kuantitas',
-            selector: row => row.total_quantity,
+            selector: row => row.total_quantity.toLocaleString('id-ID'),
             sortable: true,
         },
         {

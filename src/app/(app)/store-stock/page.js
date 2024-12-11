@@ -1,3 +1,5 @@
+import DataTableStoreStock from "./components/DataTableStoreStock";
+
 export const metadata = {
     title: 'Store Stock',
 }
@@ -5,7 +7,7 @@ export const metadata = {
 const StoreStock = () => {
     return (
         <>
-            
+            <DataTableStoreStock />
         </>
     )
 }
