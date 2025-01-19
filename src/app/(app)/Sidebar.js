@@ -9,6 +9,14 @@ const Sidebar = () => {
             'route_link': '/dashboard',
             'route_name': 'Dashboard',
         },
+        {
+            'route_link': '/stock-eggs',
+            'route_name': 'Stock Telur',
+        },
+        {
+            'route_link': '/revenue',
+            'route_name': 'Penjualan',
+        },
     ];
 
     const listSubStockRoutes = [

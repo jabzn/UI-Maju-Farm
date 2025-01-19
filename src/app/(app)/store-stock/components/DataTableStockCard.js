@@ -9,28 +9,23 @@ const DataTableStockCard = ({ storeStock }) => {
             sortable: true,
         },
         {
-            name: 'date',
+            name: 'Tanggal',
             selector: row => row.date,
             sortable: true,
         },
         {
             name: 'Stock In',
-            selector: row => row.type === 'in' ? row.quantity : '',
+            selector: row => row.type === 'in' ? row.total_quantity.toLocaleString('id-ID') : '',
             sortable: true,
         },
         {
             name: 'Stock Out',
-            selector: row => row.type === 'out' ? row.quantity : '',
+            selector: row => row.type === 'out' ? row.total_quantity.toLocaleString('id-ID') : '',
             sortable: true,
         },
         {
             name: 'Price per Unit',
             selector: row => row.price.toLocaleString('id-ID'),
-            sortable: true,
-        },
-        {
-            name: 'Total Quantity',
-            selector: row => row.total_quantity.toLocaleString('id-ID'),
             sortable: true,
         },
         {

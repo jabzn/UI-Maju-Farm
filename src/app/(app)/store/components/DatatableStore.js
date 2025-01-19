@@ -64,10 +64,6 @@ const DataTableStore = () => {
             selector: row => row.name,
         },
         {
-            name: 'Type',
-            selector: row => row.type,
-        },
-        {
             name: 'Actions',
             cell: (row) => (
                 <ActionButtons

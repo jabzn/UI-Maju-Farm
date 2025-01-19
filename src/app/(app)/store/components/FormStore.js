@@ -75,17 +75,6 @@ const FormStore = ({ onSubmit, data, mode, buttonText }) => {
                     required
                     placeholder="Nama Store"
                 />
-
-                <InputField
-                    label="Tipe Store"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    error={errors.type?.[0]}
-                    required
-                    placeholder="Tipe Store"
-                />
             </div>
         )
     }

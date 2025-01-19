@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { DeleteConfirmation, InputField, SelectField, SelectFieldUom, SubmitButton } from "../../components/FieldForm";
-import axios from "@/lib/axios";
-import DataTable from "react-data-table-component";
-import CustomStylesTransaction from "./CustomStylesTransaction";
+import { CurrentStock, DeleteConfirmation, InputField, SelectField, SelectFieldUom, SubmitButton } from "../../components/FieldForm";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
+import DataTable from "react-data-table-component";
+import CustomStylesRequisition from "../../store-requisition/components/CustomStylesRequisition";
+import axios from "@/lib/axios";
 
 const INITIAL_STOCK_MOVEMENT_STATE = {
     id: '',
@@ -15,10 +15,11 @@ const INITIAL_STOCK_MOVEMENT_STATE = {
     total_price: '',
     quantity: '',
     total_quantity: '',
+    current_stock: '',
     note: '',
 }
 
-const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, buttonText }) => {
+const FormRequisition = ({ onSubmit, data, dataStores, dataItems, mode, buttonText }) => {
     const [formData, setFormData] = useState(data);
     const [stockMovement, setStockMovement] = useState(INITIAL_STOCK_MOVEMENT_STATE);
     const [item, setItem] = useState('');
@@ -68,13 +69,9 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         const quantity = parseFloat(e.target.value);
         const conversionQuantity = parseFloat(stockMovement.uom) || 0;
         const totalQuantity = quantity * conversionQuantity;
-        const price = parseFloat(stockMovement.price);
-        const total = isNaN(price) ? 0 : price * quantity;
 
         setStockMovement(prev => ({
             ...prev,
-            price: price,
-            total_price: isNaN(total) ? 0 : total,
             quantity: quantity,
             total_quantity: isNaN(totalQuantity) ? 0 : totalQuantity,
         }))
@@ -95,36 +92,19 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
             uom_name: selectedConversion ? selectedConversion.unit.name : '',
             total_quantity: isNaN(totalQuantity) ? 0 : totalQuantity
         }));
-    }, [stockMovement.quantity, conversions]);
-
-    const handlePriceChange = useCallback((e) => {
-        const price = parseFloat(e.target.value);
-        const total = isNaN(price) ? 0 : price * stockMovement.quantity;
-
-        setStockMovement(prev => ({
-            ...prev,
-            price: price,
-            total_price: isNaN(total) ? 0 : total
-        }));
-    }, [stockMovement.quantity, stockMovement.total_price]);
-
-    const handleTotalPriceChange = useCallback((e) => {
-        const totalPrice = parseFloat(e.target.value);
-        const price = isNaN(totalPrice) ? 0 : totalPrice / stockMovement.quantity;
-
-        setStockMovement(prev => ({
-            ...prev,
-            total_price: totalPrice,
-            price: isNaN(price) ? 0 : price
-        }));
-    }, [stockMovement.quantity, stockMovement.price]);
+    }, [stockMovement.quantity]);
 
     const isDisableAddItem = useMemo(() => {
-        return !stockMovement.itemName || !stockMovement.quantity || !stockMovement.uom || !stockMovement.price || !stockMovement.total_price;
+        return !stockMovement.itemName || !stockMovement.quantity || !stockMovement.uom;
     }, [stockMovement]);
 
     const handleAddItem = useCallback(() => {
         if (isDisableAddItem) return;
+
+        if (item.current_stock < stockMovement.total_quantity) {
+            alert('Stock tidak cukup!');
+            return;
+        }
 
         setStockMovements(prev => {
             const newStockMovement = {
@@ -134,6 +114,7 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
             return [...prev, newStockMovement];
         });
         setStockMovement(INITIAL_STOCK_MOVEMENT_STATE);
+        setItem(prev => ({ ...prev, current_stock: '' }));
     }, [stockMovement, isDisableAddItem]);
 
     const handleDeleteItem = useCallback((row) => {
@@ -142,54 +123,8 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
 
     const isFormValid = useCallback(() => {
         if (mode === 'delete') return true;
-        return formData.date && formData.supplier_id && stockMovement.length > 0;
+        return formData.date && formData.store_id;
     }, [formData, mode]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErrors({});
-        setIsLoading(true);
-
-        try {
-            const submitData = {
-                ...formData,
-                stock_movements: stockMovements.map(movement => ({
-                    store_id: 1,
-                    item_id: movement.item.id,
-                    date: formData.date,
-                    quantity: movement.quantity,
-                    total_quantity: movement.total_quantity,
-                    price: movement.price,
-                    total_price: movement.total_price,
-                    uom_name: movement.uom_name,
-                    type: 'in',
-                }))
-            }
-
-            const endpoint = '/api/stockTransaction' + (mode !== 'create' ? `/${formData.id}` : '');
-            const method = {
-                'create': 'post',
-                'update': 'put',
-                'delete': 'delete'
-            }[mode];
-
-            await axios[method](endpoint, submitData);
-            onSubmit();
-        } catch (error) {
-            const responseData = error.response?.data;
-            
-            if (error.response?.status === 422) {
-                setErrors(responseData.errors);
-            } else {
-                console.error(`Error ${mode}ing Transaction:`, responseData?.message || error.message);
-                setErrors({ 
-                    general: 'An error occurred while processing your request.'
-                });
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const columns = useMemo(() => [
         {
@@ -202,25 +137,13 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
             sortable: true,
         },
         {
-            name: 'Qty',
+            name: 'Kuantitas',
             selector: row => row.quantity.toLocaleString('id-ID'),
             sortable: true,
         },
         {
-            name: 'Uom',
+            name: 'UOM',
             selector: row => row.uom_name,
-            sortable: true,
-        },
-        {
-            name: 'Unit Price',
-            selector: row => row.price,
-            format: row => row.price?.toLocaleString('id-ID'),
-            sortable: true,
-        },
-        {
-            name: 'Total',
-            selector: row => row.total_price,
-            format: row => row.total_price?.toLocaleString('id-ID'),
             sortable: true,
         },
         {
@@ -237,6 +160,50 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         }
     ], []);
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrors({});
+        setIsLoading(true);
+
+        try {
+            const submitData = {
+                ...formData,
+                stock_movements: stockMovements.map(movement => ({
+                    store_id: formData.store_id,
+                    item_id: movement.item.id,
+                    date: formData.date,
+                    quantity: movement.quantity,
+                    total_quantity: movement.total_quantity,
+                    uom_name: movement.uom_name,
+                    type: 'out',
+                }))
+            }
+
+            const endpoint = '/api/storeRequisition' + (mode !== 'create' ? `/${formData.id}` : '');
+            const method = {
+                'create': 'post',
+                'update': 'put',
+                'delete': 'delete'
+            }[mode];
+
+            await axios[method](endpoint, submitData);
+            onSubmit();
+        } catch (error) {
+            const responseData = error.response?.data;
+            
+            if (error.response?.status === 422) {
+                setErrors(responseData.errors);
+            } else {
+                console.error(`Error ${mode}ing Requisition:`, responseData?.message || error.message);
+                setErrors({ 
+                    general: 'An error occurred while processing your request.'
+                });
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const renderForm = () => {
         if (mode === 'delete') {
             return <DeleteConfirmation label={formData.reference_number} />;
@@ -244,7 +211,7 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
 
         return (
             <>
-                <div className="w-full flex justify-between gap-4">
+                <div className="flex items-center gap-3">
                     <InputField
                         className="w-2/4 flex items-center gap-1"
                         label="Tanggal"
@@ -260,21 +227,21 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
 
                     <SelectField
                         className="w-2/4 flex items-center gap-1"
-                        label="Supplier"
-                        name="supplier_id"
-                        value={formData.supplier_id}
-                        options={dataSuppliers}
+                        label="Store"
+                        name="store_id"
+                        value={formData.store_id}
+                        options={dataStores}
                         onChange={handleChange}
                         disabled={isLoading}
-                        placeholder="Pilih Supplier"
-                        error={errors.supplier_id?.[0]}
+                        placeholder="Pilih Kandang"
+                        error={errors.store_id?.[0]}
                         required
                     />
 
                     <InputField
-                        className="w-full flex items-center gap-1"
+                        className="w-2/4 flex items-center gap-1"
                         label="Remark"
-                        type="text"
+                        type="remark"
                         name="remark"
                         value={formData.remark}
                         onChange={handleChange}
@@ -283,10 +250,10 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
                         autoComplete="off"
                     />
                 </div>
-                
+
                 <hr className="my-4 border-gray-300" />
 
-                <div className="w-full flex justify-between gap-4 items-center">
+                <div className="flex items-center gap-3 mb-4">
                     <SelectField
                         className="w-full flex items-center gap-1"
                         label="Item"
@@ -328,49 +295,40 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
                         ))}
                     </SelectFieldUom>
 
-                    <InputField
+                    <CurrentStock
                         className="w-full flex items-center gap-1"
-                        label="Harga"
+                        label="Stock"
                         type="number"
-                        name="price"
-                        value={stockMovement.price}
-                        onChange={handlePriceChange}
-                        disabled={isLoading}
-                        error={errors.price?.[0]}
-                    />
-
-                    <InputField
-                        className="w-full flex items-center gap-1"
-                        label="Total"
-                        type="number"
-                        name="total_price"
-                        value={stockMovement.total_price}
-                        onChange={handleTotalPriceChange}
-                        disabled={isLoading}
-                        error={errors.price?.[0]}
+                        name="current_stock"
+                        value={item?.current_stock}
+                        disabled={true}
+                        error={errors.current_stock?.[0]}
                     />
 
                     <button 
-                        className={`bg-blue-500 px-1 py-1 items-center self-bottom ${isDisableAddItem ? 'opacity-50 bg-gray-500' : ''}`}
+                        className={`mt-2 bg-blue-500 px-1 py-1 rounded-sm ${isDisableAddItem ? 'opacity-50 bg-gray-500' : ''}`}
                         onClick={handleAddItem} 
                         disabled={isDisableAddItem}
                         type="button" 
                     >
-                        <PlusIcon className="w-5 h-5 text-white" />
+                        <span className="text-white flex gap-1 items-center font-bold px-1">
+                            Insert
+                            <PlusIcon className="w-5 h-5" />
+                        </span> 
                     </button>
                 </div>
 
                 <DataTable
                     columns={columns}
                     data={stockMovements}
-                    customStyles={CustomStylesTransaction}
+                    customStyles={CustomStylesRequisition}
                     fixedHeader
                     highlightOnHover
                 />
             </>
-        );
-    };
-    
+        )
+    }
+
     return (
         <>
             <form className="space-y-4" onSubmit={handleSubmit}>
@@ -395,4 +353,4 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
     )
 }
 
-export default FormTransaction;
+export default FormRequisition;

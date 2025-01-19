@@ -19,7 +19,6 @@ const DataTableStoreStock = () => {
         isOpen: false,
         storeStock: {},
     });
-    const [item, setItem] = useState({});
     const [startDate, setStartDate] = useState(
         new Date(new Date().getFullYear(), new Date().getMonth(), 2).toISOString().split('T')[0]
     );

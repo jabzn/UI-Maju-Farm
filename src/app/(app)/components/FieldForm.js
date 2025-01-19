@@ -76,6 +76,29 @@ export const SelectFieldUom = memo(({ label, name, value, disabled, onChange, er
     </div>
 ));
 
+export const CurrentStock = memo(({ label, name, value, type = "text", disabled, onChange, error, className, ...props }) => (
+    <div className={className}>
+        <label className="block text-sm font-bold text-gray-700">
+            {label}
+        </label>
+        <input 
+            type={type}
+            id={name}
+            name={name}
+            value={value}
+            className={`
+                mt-1 text-sm block w-full px-2 py-2 border border-gray-300 rounded-md shadow-inner
+                focus:ring-blue-500 focus:border-blue-500
+                ${disabled ? 'disabled' : ''}
+            `}
+            disabled={disabled}
+            onChange={onChange}
+            {...props}
+        />
+        {error && <span className="text-red-500 text-xs">{error}</span>}
+    </div>
+));
+
 export const TextArea = memo(({ label, name, value, disabled, onChange, error, ...props }) => (
     <div {...props}>
         <label htmlFor={name} className="block text-sm font-bold text-gray-700">
