@@ -10,7 +10,7 @@ const Sidebar = () => {
             'route_name': 'Dashboard',
         },
         {
-            'route_link': '/stock-eggs',
+            'route_link': '/egg-production',
             'route_name': 'Stock Telur',
         },
         {

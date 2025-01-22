@@ -142,8 +142,8 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
 
     const isFormValid = useCallback(() => {
         if (mode === 'delete') return true;
-        return formData.date && formData.supplier_id && stockMovement.length > 0;
-    }, [formData, mode]);
+        return formData.date && formData.supplier_id && stockMovements.length > 0;
+    }, [formData, mode, stockMovements]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

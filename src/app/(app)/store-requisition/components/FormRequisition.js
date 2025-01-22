@@ -123,8 +123,8 @@ const FormRequisition = ({ onSubmit, data, dataStores, dataItems, mode, buttonTe
 
     const isFormValid = useCallback(() => {
         if (mode === 'delete') return true;
-        return formData.date && formData.store_id;
-    }, [formData, mode]);
+        return formData.date && formData.store_id && stockMovements.length > 0;
+    }, [formData, mode, stockMovements]);
 
     const columns = useMemo(() => [
         {

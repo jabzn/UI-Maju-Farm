@@ -25,12 +25,18 @@ const DataTableStockCard = ({ storeStock }) => {
         },
         {
             name: 'Price per Unit',
-            selector: row => row.price.toLocaleString('id-ID'),
+            selector: row => new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(row.price),
             sortable: true,
         },
         {
             name: 'Total Price',
-            selector: row => row.total_price.toLocaleString('id-ID'),
+            selector: row => new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2, // Number of decimal places
+                maximumFractionDigits: 2, // Number of decimal places
+            }).format(row.total_price),
             sortable: true,
         },
     ];
