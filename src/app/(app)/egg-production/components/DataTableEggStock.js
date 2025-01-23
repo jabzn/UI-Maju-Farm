@@ -53,7 +53,6 @@ const DataTableEggStock = () => {
             setData(response.data.data);
             setTotalRows(response.data.total);
             setStores(stores.data);
-            console.log(store);
         } catch (error) {
             console.error('Error fetching Data:', error);
         } finally {
