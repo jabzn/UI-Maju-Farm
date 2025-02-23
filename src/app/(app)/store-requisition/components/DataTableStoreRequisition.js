@@ -24,7 +24,8 @@ const DataTableStoreRequisition = () => {
     const [totalRows, setTotalRows] = useState(0);
     const [perPage, setPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
-    const [search, setSearch] = useState('');
+    const [sortColumn, setSortColumn] = useState();
+    const [sortDirection, setSortDirection] = useState();
     const [modalState, setModalState] = useState({
         isOpen: false,
         mode: '',
@@ -37,7 +38,7 @@ const DataTableStoreRequisition = () => {
         new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split('T')[0]
     );
 
-    const fetchData = useCallback(async (page) => {
+    const fetchData = useCallback(async (page, sortColumn, sortDirection) => {
         try {
             setLoading(true);
             const [response, stores, items] = await Promise.all([
@@ -46,6 +47,8 @@ const DataTableStoreRequisition = () => {
                     end_date: endDate,
                     page: page,
                     per_page: perPage, 
+                    sortColumn: sortColumn,
+                    sortDirection: sortDirection,
                 }}),
                 axios.get('/api/stores'),
                 axios.get('/api/items'),
@@ -59,11 +62,11 @@ const DataTableStoreRequisition = () => {
         } finally {
             setLoading(false);
         }
-    }, [startDate, endDate, search, perPage]);
+    }, [startDate, endDate, perPage]);
 
     useEffect(() => {
-        fetchData(currentPage);
-    }, [fetchData, currentPage]);
+        fetchData(currentPage, sortColumn, sortDirection);
+    }, [fetchData, currentPage, sortColumn, sortDirection]);
 
     const handleModalOpen = useCallback((mode, storeRequisition = {
         ...INITIAL_STORE_REQUISITION_STATE,
@@ -79,6 +82,11 @@ const DataTableStoreRequisition = () => {
     const handlePageChange = page => {
         setCurrentPage(page);
     };
+
+    const handleSortChange = (column, sortDirection) => {
+        setSortColumn(column.sortField)
+        setSortDirection(sortDirection)
+    }
 
     const handleAfterSubmit = useCallback(async () => {
         handleModalClose();
@@ -99,16 +107,19 @@ const DataTableStoreRequisition = () => {
             name: 'REF',
             selector: row => row.reference_number,
             sortable: true,
+            sortField: 'reference_number',
         },
         {
             name: 'Tanggal',
             selector: row => row.date,
             sortable: true,
+            sortField: 'date',
         },
         {
             name: 'Store',
             selector: row => row.store.name,
             sortable: true,
+            sortField: 'store_id',
         },
         {
             name: 'Actions',
@@ -173,6 +184,8 @@ const DataTableStoreRequisition = () => {
                 onChangePage={handlePageChange}
                 paginationRowsPerPageOptions={[]}
                 paginationPerPage={perPage}
+                sortServer
+                onSort={handleSortChange}
                 progressPending={loading}
                 onRowClicked={row => handleModalOpen('update', row)}
                 highlightOnHover

@@ -11,6 +11,7 @@ const INITIAL_STOCK_MOVEMENT_STATE = {
     itemName: '',
     uom: '',
     uom_name: '',
+    price_uom: '',
     price: '',
     total_price: '',
     quantity: '',
@@ -68,12 +69,12 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         const quantity = parseFloat(e.target.value);
         const conversionQuantity = parseFloat(stockMovement.uom) || 0;
         const totalQuantity = quantity * conversionQuantity;
-        const price = parseFloat(stockMovement.price);
+        const price = parseFloat(stockMovement.price_uom);
         const total = isNaN(price) ? 0 : price * quantity;
 
         setStockMovement(prev => ({
             ...prev,
-            price: price,
+            price_uom: price,
             total_price: isNaN(total) ? 0 : total,
             quantity: quantity,
             total_quantity: isNaN(totalQuantity) ? 0 : totalQuantity,
@@ -103,7 +104,7 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
 
         setStockMovement(prev => ({
             ...prev,
-            price: price,
+            price_uom: price,
             total_price: isNaN(total) ? 0 : total
         }));
     }, [stockMovement.quantity, stockMovement.total_price]);
@@ -115,12 +116,12 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         setStockMovement(prev => ({
             ...prev,
             total_price: totalPrice,
-            price: isNaN(price) ? 0 : price
+            price_uom: isNaN(price) ? 0 : price
         }));
-    }, [stockMovement.quantity, stockMovement.price]);
+    }, [stockMovement.quantity, stockMovement.price_uom]);
 
     const isDisableAddItem = useMemo(() => {
-        return !stockMovement.itemName || !stockMovement.quantity || !stockMovement.uom || !stockMovement.price || !stockMovement.total_price;
+        return !stockMovement.itemName || !stockMovement.quantity || !stockMovement.uom || !stockMovement.price_uom || !stockMovement.total_price;
     }, [stockMovement]);
 
     const handleAddItem = useCallback(() => {
@@ -153,17 +154,22 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         try {
             const submitData = {
                 ...formData,
-                stock_movements: stockMovements.map(movement => ({
-                    store_id: 1,
-                    item_id: movement.item.id,
-                    date: formData.date,
-                    quantity: movement.quantity,
-                    total_quantity: movement.total_quantity,
-                    price: movement.price,
-                    total_price: movement.total_price,
-                    uom_name: movement.uom_name,
-                    type: 'in',
-                }))
+                stock_movements: stockMovements.map(movement => {
+                    const price = movement.total_price / movement.total_quantity;
+                    
+                    return {
+                        store_id: 1,
+                        item_id: movement.item.id,
+                        date: formData.date,
+                        quantity: movement.quantity,
+                        total_quantity: movement.total_quantity,
+                        price_uom: movement.price_uom,
+                        price: parseFloat(price),
+                        total_price: movement.total_price,
+                        uom_name: movement.uom_name,
+                        type: 'in',
+                    }
+                })
             }
 
             const endpoint = '/api/stockTransaction' + (mode !== 'create' ? `/${formData.id}` : '');
@@ -213,14 +219,18 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
         },
         {
             name: 'Unit Price',
-            selector: row => row.price,
-            format: row => row.price?.toLocaleString('id-ID'),
+            selector: row => new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2, // Number of decimal places
+                maximumFractionDigits: 2, // Number of decimal places
+            }).format(row.price_uom),
             sortable: true,
         },
         {
             name: 'Total',
-            selector: row => row.total_price,
-            format: row => row.total_price?.toLocaleString('id-ID'),
+            selector: row => new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2, // Number of decimal places
+                maximumFractionDigits: 2, // Number of decimal places
+            }).format(row.total_price),
             sortable: true,
         },
         {
@@ -333,10 +343,10 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
                         label="Harga"
                         type="number"
                         name="price"
-                        value={stockMovement.price}
+                        value={stockMovement.price_uom}
                         onChange={handlePriceChange}
                         disabled={isLoading}
-                        error={errors.price?.[0]}
+                        error={errors.price_uom?.[0]}
                     />
 
                     <InputField
@@ -347,7 +357,7 @@ const FormTransaction = ({ onSubmit, data, dataSuppliers, dataItems, mode, butto
                         value={stockMovement.total_price}
                         onChange={handleTotalPriceChange}
                         disabled={isLoading}
-                        error={errors.price?.[0]}
+                        error={errors.total_price?.[0]}
                     />
 
                     <button 

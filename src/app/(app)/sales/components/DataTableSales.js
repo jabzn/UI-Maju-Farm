@@ -4,31 +4,50 @@ import CreateButton from "@/components/CreateButton";
 import axios from "@/lib/axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
-import CustomStylesEggStock from "./customStylesEggStock";
 import ActionButtons from "@/components/ActionButtons";
 import Modal from "../../components/Modal";
-import FormEggStock from "./FormEggStock";
+import CustomStylesSales from "./CustomStylesSales";
+import { DebounceInput } from "react-debounce-input";
+import FormSales from "./FormSales";
 
-const INITIAL_EGG_PRODUCTION_STATE = {
+const INITIAL_SALES_STATE = {
+    customer_id: '',
     date: '',
-    store_id: '',
+    reference_number: '',
+    payment_method: '',
+    status: '',
+    size: '',
+    quantity: '',
+    paid_amount: '',
+    notes: '',
 };
 
-const DataTableEggStock = () => {
+const paginationComponentOptions = {
+    noRowsPerPage: true,
+}
+
+const fields = [
+    { value: 'reference_number', label: 'Ref' },
+    { value: 'customer_name', label: 'Customer' },
+    { value: 'size', label: 'Size' },
+]
+
+const DataTableSales = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [stores, setStores] = useState([]);
+    const [customers, setCustomers] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [totalRows, setTotalRows] = useState(0);
     const [perPage, setPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortColumn, setSortColumn] = useState()
     const [sortDirection, setSortDirection] = useState()
-    const [store, setStore] = useState([]);
+    const [search, setSearch] = useState('');
+    const [field, setField] = useState([]);
     const [modalState, setModalState] = useState({
         isOpen: false,
         mode: '',
-        eggProduction: INITIAL_EGG_PRODUCTION_STATE,
+        sales: INITIAL_SALES_STATE,
     });
     const [startDate, setStartDate] = useState(
         new Date(new Date().getFullYear(), new Date().getMonth(), 2).toISOString().split('T')[0]
@@ -40,9 +59,10 @@ const DataTableEggStock = () => {
     const fetchData = useCallback(async (page, sortColumn, sortDirection) => {
         try {
             setLoading(true);
-            const [response, stores, sizes] = await Promise.all([
-                axios.get('/api/eggProductions', { params: {
-                    store_id: store,
+            const [response, customers, sizes] = await Promise.all([
+                axios.get('/api/sales', { params: {
+                    field: field,
+                    search: search,
                     start_date: startDate,
                     end_date: endDate,
                     page: page,
@@ -50,29 +70,34 @@ const DataTableEggStock = () => {
                     sortColumn: sortColumn,
                     sortDirection: sortDirection,
                 }}),
-                axios.get('/api/stores'),
-                axios.get('/api/sizes'),
+                axios.get('/api/customers'),
+                axios.get('/api/sizes', {
+                    params: {
+                        startDate: startDate,
+                        endDate: endDate,
+                    }
+                }),
             ]);
             setData(response.data.data);
             setTotalRows(response.data.total);
-            setStores(stores.data);
+            setCustomers(customers.data);
             setSizes(sizes.data);
         } catch (error) {
             console.error('Error fetching Data:', error);
         } finally {
             setLoading(false);
         }
-    }, [startDate, endDate, store, perPage])
+    }, [startDate, endDate, search, perPage])
 
     useEffect(() => {
         fetchData(currentPage, sortColumn, sortDirection);
     }, [fetchData, currentPage, sortColumn, sortDirection]);
 
-    const handleModalOpen = useCallback((mode, eggProduction = {
-        ...INITIAL_EGG_PRODUCTION_STATE,
-        date: new Date().toISOString().slice(0, 10)
+    const handleModalOpen = useCallback((mode, sales = {
+        ...INITIAL_SALES_STATE,
+        date: new Date().toISOString().slice(0, 10),
     }) => {
-        setModalState({ isOpen: true, mode, eggProduction });
+        setModalState({ isOpen: true, mode, sales });
     }, []);
 
     const handleModalClose = useCallback(() => {
@@ -95,9 +120,9 @@ const DataTableEggStock = () => {
 
     const getModalTitle = mode => {
         switch (mode) {
-            case 'create': return 'Tambah Produksi Telur';
-            case 'update': return 'Ubah Produksi Telur';
-            case 'delete': return 'Hapus Produksi Telur';
+            case 'create': return 'Tambah Penjualan';
+            case 'update': return 'Ubah Penjualan';
+            case 'delete': return 'Hapus Penjualan';
             default: return '';
         }
     };
@@ -110,15 +135,33 @@ const DataTableEggStock = () => {
             sortField: 'date',
         },
         {
-            name: 'Kandang',
-            selector: (row) => row.store.name,
+            name: 'REF',
+            selector: (row) => row.reference_number,
             sortable: true,
-            sortField: 'store_id',
+            sortField: 'reference_number',
+        },
+        {
+            name: 'Customer',
+            selector: (row) => row.customer.name,
+            sortable: true,
+            sortField: 'customer',
+        },
+        {
+            name: 'Payment',
+            selector: (row) => row.payment_method.toUpperCase(),
+            sortable: true,
+            sortField: 'payment_method',
+        },
+        {
+            name: 'Status',
+            selector: (row) => row.status.toUpperCase(),
+            sortable: true,
+            sortField: 'status',
         },
         {
             name: 'Actions',
             cell: row => (
-                <ActionButtons 
+                <ActionButtons
                     onUpdate={() => handleModalOpen('update', row)}
                     onDelete={() => handleModalOpen('delete', row)}
                     row={row}
@@ -131,21 +174,28 @@ const DataTableEggStock = () => {
         <>
             <div className="flex items-center justify-between mb-2">
                 <CreateButton onClick={() => handleModalOpen('create')}>
-                    Tambah Produksi Telur
+                    Tambah Penjualan
                 </CreateButton>
 
                 <div className="flex items-center space-x-6">
-                    <div className="flex items-center space-x-2">
-                        <span className="font-bold">Pilih Store:</span>
+                    <div className="flex items-center">
                         <select
-                            className="border rounded-md px-2 py-1 outline-none shadow-inner w-40"
-                            onChange={e => setStore(e.target.value)}
+                            className="border rounded-l-md px-2 py-1 outline-none shadow-inner w-40"
+                            onChange={e => setField(e.target.value)}
                         >
-                            <option value="">Pilih Store</option>
-                            {stores.map(store => (
-                                <option key={store.id} value={store.id}>{store.name}</option>
+                            <option value=""></option>
+                            {fields.map(field => (
+                                <option key={field.value} value={field.value}>{field.label}</option>
                             ))}
                         </select>
+
+                        <div>
+                            <DebounceInput
+                                debounceTimeout={300}
+                                className="border rounded-r-md px-2 py-1 outline-none shadow-inner w-40"
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                        </div>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -171,12 +221,12 @@ const DataTableEggStock = () => {
                 isOpen={modalState.isOpen}
                 onClose={handleModalClose}
                 title={getModalTitle(modalState.mode)}
-                width={modalState.mode === 'delete' ? 'max-w-md' : 'max-w-2xl'}
+                width={modalState.mode === 'delete' ? 'max-w-md' : 'max-w-4xl'}
             >
-                <FormEggStock
+                <FormSales
                     onSubmit={handleAfterSubmit}
-                    data={modalState.eggProduction}
-                    dataStores={stores}
+                    data={modalState.sales}
+                    dataCustomers={customers}
                     dataSizes={sizes}
                     mode={modalState.mode}
                     buttonText={getModalTitle(modalState.mode)}
@@ -186,9 +236,10 @@ const DataTableEggStock = () => {
             <DataTable
                 columns={columns}
                 data={data}
-                customStyles={CustomStylesEggStock}
+                customStyles={CustomStylesSales}
                 pagination
                 paginationServer
+                paginationComponentOptions={paginationComponentOptions}
                 paginationTotalRows={totalRows}
                 onChangePage={handlePageChange}
                 paginationRowsPerPageOptions={[]}
@@ -203,4 +254,4 @@ const DataTableEggStock = () => {
     )
 }
 
-export default DataTableEggStock;
+export default DataTableSales;

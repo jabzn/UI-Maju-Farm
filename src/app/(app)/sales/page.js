@@ -1,9 +1,13 @@
+import DataTableSales from "./components/DataTableSales";
 
+export const metadata = {
+    title: 'Maju Farm - Penjualan',
+}
 
 const Sales = () => {
     return (
         <>
-            Tes Page Sales
+            <DataTableSales />
         </>
     )
 }

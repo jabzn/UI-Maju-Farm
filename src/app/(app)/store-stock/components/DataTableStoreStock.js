@@ -14,6 +14,8 @@ const DataTableStoreStock = () => {
     const [loading, setLoading] = useState(false);
     const [totalRows, setTotalRows] = useState(0);
     const [perPage, setPerPage] = useState(10);
+    const [sortColumn, setSortColumn] = useState();
+    const [sortDirection, setSortDirection] = useState();
     const [currentPage, setCurrentPage] = useState(1);
     const [modal, setModal] = useState({
         isOpen: false,
@@ -26,7 +28,7 @@ const DataTableStoreStock = () => {
         new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().split('T')[0]
     );
 
-    const fetchData = useCallback(async (page) => {
+    const fetchData = useCallback(async (page, sortColumn, sortDirection) => {
         try {
             setLoading(true);
             const response = await axios.get('/api/storeStocks', { 
@@ -36,6 +38,8 @@ const DataTableStoreStock = () => {
                     end_date: endDate,
                     page: page, 
                     per_page: perPage, 
+                    sortColumn: sortColumn,
+                    sortDirection: sortDirection,
                 }});
             setData(response.data.data);
             setTotalRows(response.data.total);
@@ -47,11 +51,16 @@ const DataTableStoreStock = () => {
     }, [startDate, endDate, search, perPage]);
 
     useEffect(() => {
-        fetchData(currentPage);
-    }, [fetchData, currentPage]);
+        fetchData(currentPage, sortColumn, sortDirection);
+    }, [fetchData, currentPage, sortColumn, sortDirection]);
 
     const handlePageChange = page => {
         setCurrentPage(page);
+    };
+
+    const handleSortChange = (column, sortDirection) => {
+        setSortColumn(column.sortField);
+        setSortDirection(sortDirection);
     };
 
     const handleModalOpen = useCallback((row) => {
@@ -74,34 +83,34 @@ const DataTableStoreStock = () => {
             sortable: true,
         },
         {
-            name: 'Kategori',
-            selector: row => row.category.name,
-            sortable: true,
-        },
-        {
             name: 'Item',
             selector: row => row.name,
             sortable: true,
+            sortField: 'name',
         },
         {
             name: 'Unit',
             selector: row => row.unit.name,
             sortable: true,
+            sortField: 'unit_id',
+        },
+        {
+            name: 'Kategori',
+            selector: row => row.category.name,
+            sortable: true,
+            sortField: 'category_id',
         },
         {
             name: 'Current Stock',
-            selector: row => row.current_stock.toLocaleString('id-ID'),
-            sortable: true,
-        },
-        {
-            name: 'Unit Price',
-            selector: row => row.totalPrice ? (row.totalPrice / row.current_stock).toLocaleString('id-ID') : '',
+            selector: row => new Intl.NumberFormat('id-ID').format(row?.current_stock ?? 0), 
             sortable: true,
         },
         {
             name: 'Total Price',
-            selector: row => row.totalPrice.toLocaleString('id-ID'),
-            sortable: true,
+            selector: row => new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+            }).format(row?.totalPrice ?? 0),
         },
     ], [handleModalOpen]);
 
@@ -158,6 +167,8 @@ const DataTableStoreStock = () => {
                 paginationRowsPerPageOptions={[]}
                 paginationPerPage={perPage}
                 progressPending={loading}
+                sortServer
+                onSort={handleSortChange}
                 onRowClicked={row => handleModalOpen(row)}
                 highlightOnHover
             />

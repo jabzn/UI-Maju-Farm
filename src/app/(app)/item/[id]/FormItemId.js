@@ -86,6 +86,7 @@ const FormItemId = ({ onSubmit, data, dataUnits, mode, buttonText }) => {
                     disabled={isLoading}
                     error={errors.quantity?.[0]}
                     required
+                    autoComplete="off"
                     placeholder="Kuantitas Konversi"
                 />
             </div>

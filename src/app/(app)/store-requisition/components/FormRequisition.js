@@ -46,13 +46,18 @@ const FormRequisition = ({ onSubmit, data, dataStores, dataItems, mode, buttonTe
     const handleSelectedItem = useCallback((e) => {
         const selectedItem = e.target.value;
         const item = dataItems.find(item => item.id === parseInt(selectedItem));
+        const currentStock = item?.current_stock || 0;
+        const totalStockMovement = stockMovements
+            .filter(movement => movement.item.id === item.id)
+            .reduce((total, movement) => total + movement.total_quantity, 0);
+        let latestStock = currentStock - totalStockMovement;
 
         setItem(item);
         setStockMovement(prev => ({
             ...prev,
             item: item,
             itemName: selectedItem,
-            current_stock: item.current_stock,
+            current_stock: latestStock,
             uom: '',
             quantity: '',
             total_quantity: '',
@@ -63,7 +68,7 @@ const FormRequisition = ({ onSubmit, data, dataStores, dataItems, mode, buttonTe
         } else {
             setConversions([]);
         }
-    }, [dataItems]);
+    }, [dataItems, stockMovements]);
 
     const handleQuantityChange = useCallback((e) => {
         const quantity = parseFloat(e.target.value);
@@ -300,7 +305,7 @@ const FormRequisition = ({ onSubmit, data, dataStores, dataItems, mode, buttonTe
                         label="Stock"
                         type="number"
                         name="current_stock"
-                        value={item?.current_stock}
+                        value={stockMovement?.current_stock}
                         disabled={true}
                         error={errors.current_stock?.[0]}
                     />

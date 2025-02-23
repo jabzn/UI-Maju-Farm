@@ -26,6 +26,8 @@ const DatatableStock = () => {
     const [totalRows, setTotalRows] = useState(0);
     const [perPage, setPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortColumn, setSortColumn] = useState()
+    const [sortDirection, setSortDirection] = useState()
     const [search, setSearch] = useState('');
     const [startDate, setStartDate] = useState(
         new Date(new Date().getFullYear(), new Date().getMonth(), 2).toISOString().split('T')[0]
@@ -39,7 +41,7 @@ const DatatableStock = () => {
         stockTransaction: INITIAL_STOCK_TRANSACTION_STATE,
     });
 
-    const fetchData = useCallback(async (page) => {
+    const fetchData = useCallback(async (page, sortColumn, sortDirection) => {
         try {
             setLoading(true);
             const [response, suppliers, items] = await Promise.all([
@@ -49,6 +51,8 @@ const DatatableStock = () => {
                     search: search, 
                     start_date: startDate, 
                     end_date: endDate,
+                    sortColumn: sortColumn,
+                    sortDirection: sortDirection,
                 }}),
                 axios.get('/api/suppliers'),
                 axios.get('/api/items'),
@@ -65,8 +69,8 @@ const DatatableStock = () => {
     }, [perPage, search, startDate, endDate]);
 
     useEffect(() => {
-        fetchData(currentPage);
-    }, [fetchData, currentPage]);
+        fetchData(currentPage, sortColumn, sortDirection);
+    }, [fetchData, currentPage, sortColumn, sortDirection]);
 
     const handlePageChange = page => {
         setCurrentPage(page);
@@ -76,6 +80,11 @@ const DatatableStock = () => {
         setPerPage(newPerPage);
         setCurrentPage(page);
     };
+
+    const handleSortChange = (column, sortDirection) => {
+        setSortColumn(column.sortField)
+        setSortDirection(sortDirection)
+    }
 
     const handleModalOpen = useCallback((mode, stockTransaction = {
         ...INITIAL_STOCK_TRANSACTION_STATE,
@@ -107,22 +116,24 @@ const DatatableStock = () => {
             name: 'REF',
             selector: row => row.reference_number,
             sortable: true,
+            sortField: 'reference_number',
         },
         {
             name: 'Tanggal',
             selector: row => row.date,
             format: row => new Date(row.date).toLocaleDateString('id-ID'),
             sortable: true,
+            sortField: 'date',
         },
         {
             name: 'Supplier',
             selector: row => row.supplier.name,
             sortable: true,
+            sortField: 'supplier_id',
         },
         {
             name: 'Remark',
             selector: row => row.remark?.length > 20 ? `${row.remark.slice(0, 17)}...` : row.remark,
-            sortable: true,
         },
         {
             name: 'Actions',
@@ -197,6 +208,8 @@ const DatatableStock = () => {
                 onChangePage={handlePageChange}
                 paginationRowsPerPageOptions={[]}
                 paginationPerPage={perPage}
+                sortServer
+                onSort={handleSortChange}
                 progressPending={loading}
                 onRowClicked={row => handleModalOpen('update', row)}
                 highlightOnHover

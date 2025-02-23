@@ -6,45 +6,40 @@ const DataTableStockCard = ({ storeStock }) => {
         {
             name: 'No.',
             selector: (row, index) => index + 1,
-            sortable: true,
         },
         {
             name: 'Tanggal',
             selector: row => row.date,
-            sortable: true,
+            format: row => new Date(row.date).toLocaleDateString('id-ID'),
         },
         {
             name: 'Stock In',
-            selector: row => row.type === 'in' ? row.total_quantity.toLocaleString('id-ID') : '',
-            sortable: true,
+            selector: row => row.type === 'in' ? row.quantity : '',
         },
         {
             name: 'Stock Out',
-            selector: row => row.type === 'out' ? row.total_quantity.toLocaleString('id-ID') : '',
-            sortable: true,
+            selector: row => row.type === 'out' ? row.quantity : '',
         },
         {
             name: 'Price per Unit',
             selector: row => new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            }).format(row.price),
-            sortable: true,
+                style: 'currency',
+                currency: 'IDR',
+            }).format(row.total_price / row.quantity),
         },
         {
             name: 'Total Price',
             selector: row => new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 2, // Number of decimal places
-                maximumFractionDigits: 2, // Number of decimal places
+                style: 'currency',
+                currency: 'IDR',
             }).format(row.total_price),
-            sortable: true,
         },
     ];
 
     return (
         <>
             <DataTable
-                data={storeStock.stock_movements}
+                data={storeStock.entries}
                 columns={columns}
                 customStyles={CustomStylesStockCard}
                 pagination
